@@ -1,0 +1,676 @@
+{
+	"info": {
+		"_postman_id": "16b89224-f1fb-4e5f-81f6-355fc9a2362c",
+		"name": "Testes PedidosAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26178845",
+		"_collection_link": "https://galactic-rocket-443719.postman.co/workspace/Team-Workspace~26807ecd-829a-4aa3-8348-8db02a958946/collection/26178845-16b89224-f1fb-4e5f-81f6-355fc9a2362c?action=share&source=collection_link&creator=26178845"
+	},
+	"item": [
+		{
+			"name": "COZINHAS",
+			"item": [
+				{
+					"name": "Teste Criar Cozinha",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Cozinha Mexicana\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/cozinhas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cozinhas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teste Buscar todas cozinhas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/cozinhas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"cozinhas"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RESTAURANTES",
+			"item": [
+				{
+					"name": "#F011 Teste deve Buscar todos os restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Testa se Status code é 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Corpo da resposta não deve conter dados\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/restaurantes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F031 Teste deve Criar restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: \"http://localhost:8080/cozinhas\",  // endpoint\r",
+									"    method: \"POST\",\r",
+									"    header: {\r",
+									"        \"Content-Type\": \"application/json\"\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: \"raw\",\r",
+									"        raw: JSON.stringify({\r",
+									"            \"nome\": \"Brasileira\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    if (!err) {\r",
+									"        let cozinhaId = res.json().id;  // Pega o ID da cozinha criada\r",
+									"        pm.variables.set(\"cozinhaId\", cozinhaId);  // Salva a variável para usar depois\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso\",\r\n  \"taxaFrete\": 10.00,\r\n  \"cozinha\": {\r\n    \"id\": {{cozinhaId}}\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F032 Teste quando Criar restaurante, com o mesmo nome do anterior",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Testa se Mensagem de erro está correta\", function () {\r",
+									"    pm.response.to.have.body(\"Já existe um restaurante com esse nome.\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Status code é 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso\",\r\n  \"taxaFrete\": 10.00,\r\n  \"cozinha\": {\r\n    \"id\": 1\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F033 Teste quando Criar restaurante, sem cozinha",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Testa se Mensagem de erro está correta\", function () {\r",
+									"    pm.response.to.have.body(\"Não existe cadastro de cozinha com código 999\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Status code é 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso\",\r\n  \"taxaFrete\": 10.00,\r\n  \"cozinha\": {\r\n    \"id\": 999\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F021 Teste deve Busca um restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Testa se Status code é 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"A resposta está no formato JSON\", function () {\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F022 Teste quando Busca um restaurante com ID Inexistente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Testa se Status code é 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Corpo da resposta não deve conter dados\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F041 Teste deve Atualizar um restaurante existente",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 100ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso com nome alterado\",\r\n  \"taxaFrete\": 9,\r\n  \"cozinha\": {\r\n    \"id\": 1\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F042 Teste quando Atualizar um restaurante existente, com o mesmo nome Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Mensagem de erro está correta\", function () {\r",
+									"    pm.response.to.have.body(\"Já existe um restaurante com esse nome.\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso com nome alterado\",\r\n  \"taxaFrete\": 9,\r\n  \"cozinha\": {\r\n    \"id\": 1\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F043 Teste quando Atualizar um restaurante existente, com o mesmo nome",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Corpo da resposta não deve conter dados\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Restaurante Saboroso com nome alterado\",\r\n  \"taxaFrete\": 9,\r\n  \"cozinha\": {\r\n    \"id\": 1\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F051 Teste deve Remover um restaurante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Corpo da resposta não deve conter dados\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 100ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "#F051 Teste deve Remover um restaurante Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// TESTES\r",
+									"pm.test(\"Testa se Status code é 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Corpo da resposta não deve conter dados\", function () {\r",
+									"    pm.expect(pm.response.text()).to.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Testa se Response time é menor que 20ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(20);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/restaurantes/999",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"restaurantes",
+								"999"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
